@@ -1,12 +1,13 @@
 from django.contrib import admin
 from .models.pets import Pet, PetPhoto, PetVideo
+from .models.pet_parent import PetParent
 
 
 class PetPhotoInline(admin.TabularInline):
     model = PetPhoto
     extra = 1
     max_num = 5
-    fields = ['image', 'order']
+    fields = ['image', 'order', 'is_main']
 
 
 class PetVideoInline(admin.TabularInline):
@@ -27,13 +28,18 @@ class PetAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'color', 'weight', 'size', 'gender', 'age_months')
         }),
         ('Breeding & Features', {
-            'fields': ('champions_bloodline',)
+            'fields': ('champions_bloodline', 'father', 'mother')
         }),
         ('Status & Pricing', {
             'fields': ('price', 'featured', 'status')
         }),
-        ('Main Photo', {
-            'fields': ('main_photo',)
+        ('Health & Documentation', {
+            'fields': ('rabies_vaccinated', 'rabies_vaccination_date', 'dhpp_vaccinated', 'dhpp_vaccination_date', 
+                      'dewormed', 'deworming_date', 'health_certificate', 'kci_registered', 'registration_number',
+                      'microchipped', 'microchip_number', 'health_notes')
+        }),
+        ('Location & Traits', {
+            'fields': ('location', 'lifestyle', 'characteristics')
         }),
     )
     
@@ -47,11 +53,27 @@ class PetAdmin(admin.ModelAdmin):
 
 @admin.register(PetPhoto)
 class PetPhotoAdmin(admin.ModelAdmin):
-    list_display = ['pet', 'order', 'created_at']
-    list_filter = ['pet']
+    list_display = ['pet', 'order', 'is_main', 'created_at']
+    list_filter = ['pet', 'is_main']
 
 
 @admin.register(PetVideo)
 class PetVideoAdmin(admin.ModelAdmin):
     list_display = ['pet', 'title', 'created_at']
     list_filter = ['pet']
+
+
+@admin.register(PetParent)
+class PetParentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'gender',  'registration_number']
+    list_filter = ['gender', ]
+    search_fields = ['name', 'registration_number']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'gender', 'date_of_birth')
+        }),
+        ('Registration & Pedigree', {
+            'fields': ('registration_number',)
+        }),
+    )

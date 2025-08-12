@@ -43,7 +43,7 @@ class Pet(TimeStampedModel):
     
     # Breeder & Location
     # breeder = models.ForeignKey('breeder.Breeder', on_delete=models.CASCADE, related_name='pets')
-    location = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True )
     
     # Lifestyle & Characteristics
     lifestyle = ArrayField(
@@ -58,8 +58,8 @@ class Pet(TimeStampedModel):
     )
     
     # Parentage
-    father = models.ForeignKey('pets.PetParent', null=True, blank=True, on_delete=models.SET_NULL)
-    mother = models.ForeignKey('pets.PetParent', null=True, blank=True, on_delete=models.SET_NULL)
+    father = models.ForeignKey('pets.PetParent', null=True, blank=True, on_delete=models.SET_NULL, related_name='father_of')
+    mother = models.ForeignKey('pets.PetParent', null=True, blank=True, on_delete=models.SET_NULL, related_name='mother_of')
     
     @property
     def main_photo(self):
@@ -77,6 +77,23 @@ class Pet(TimeStampedModel):
     
     class Meta:
         ordering = ['-created_at', 'name']
+        indexes = [
+            # Search & filtering indexes
+            models.Index(fields=['status']),  
+            models.Index(fields=['gender', 'size']), 
+            models.Index(fields=['price']), 
+            models.Index(fields=['location']),  
+            models.Index(fields=['featured', 'status']), 
+            models.Index(fields=['age_months']), 
+            
+            # Health & breeding indexes
+            models.Index(fields=['rabies_vaccinated', 'dhpp_vaccinated']),
+            models.Index(fields=['champions_bloodline']),
+            
+            # Composite indexes for common queries
+            models.Index(fields=['status', 'featured', '-created_at']),
+            models.Index(fields=['gender', 'status', 'price']),
+        ]
 
 
 class PetPhoto(TimeStampedModel):
