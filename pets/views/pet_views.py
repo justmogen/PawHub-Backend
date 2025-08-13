@@ -37,8 +37,7 @@ class PetViewSet(viewsets.ModelViewSet):
     }
     
     # Search options
-    search_fields = ['name', 'description', 'color', 'location', 'health_notes']
-    
+    search_fields = ['name', 'color', 'location', 'size', 'status', 'description', 'health_notes']
     # Ordering options
     ordering_fields = ['created_at', 'updated_at', 'name', 'price', 'age_months']
     ordering = ['-featured', '-created_at']  # Featured pets first, then newest
@@ -80,15 +79,6 @@ class PetViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(Q(rabies_vaccinated=False) | Q(dhpp_vaccinated=False))
         
         return queryset
-    
-    @action(detail=False, methods=['get'])
-    def featured(self, request):
-        """
-        Get featured pets only.
-        """
-        featured_pets = self.get_queryset().filter(featured=True, status='available')
-        serializer = self.get_serializer(featured_pets, many=True)
-        return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def available(self, request):
