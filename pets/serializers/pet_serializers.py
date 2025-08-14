@@ -49,6 +49,7 @@ class PetListSerializer(serializers.ModelSerializer):
             'id', 'name', 'breed', 'description', 'color', 'weight', 'size', 'gender',
             'age_months', 'price', 'featured', 'status', 'location',
             'main_photo', 'is_fully_vaccinated', 'champions_bloodline',
+            'lifestyle', 'characteristics',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
