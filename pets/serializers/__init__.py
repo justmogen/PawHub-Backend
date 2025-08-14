@@ -1,3 +1,3 @@
-from .pet_serializers import PetListSerializer, PetDetailSerializer
+from .pet_serializers import PetListSerializer, PetDetailSerializer, BreedSerializer
 
-__all__ = ['PetListSerializer', 'PetDetailSerializer']
+__all__ = ['PetListSerializer', 'PetDetailSerializer', 'BreedSerializer']
