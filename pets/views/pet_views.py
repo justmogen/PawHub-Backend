@@ -3,8 +3,24 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Min, Max
-from pets.models import Pet
-from pets.serializers import PetListSerializer, PetDetailSerializer
+from pets.models import Pet, Breed
+from pets.serializers import PetListSerializer, PetDetailSerializer, BreedSerializer
+
+
+class BreedViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for Breed model - read-only operations.
+    
+    Provides:
+    - List view of all available breeds
+    - Detail view of specific breed
+    """
+    queryset = Breed.objects.all().order_by('name')
+    serializer_class = BreedSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'size_category', 'created_at']
+    ordering = ['name']
 
 
 class PetViewSet(viewsets.ModelViewSet):
@@ -17,11 +33,12 @@ class PetViewSet(viewsets.ModelViewSet):
     - Create, Update, Delete operations
     - Custom actions for specific queries
     """
-    queryset = Pet.objects.all().select_related('father', 'mother').prefetch_related('photos', 'videos')
+    queryset = Pet.objects.all().select_related('breed', 'father', 'mother').prefetch_related('photos', 'videos')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Filtering options
     filterset_fields = {
+        'breed': ['exact'],
         'status': ['exact'],
         'gender': ['exact'],
         'size': ['exact'], 
@@ -37,7 +54,7 @@ class PetViewSet(viewsets.ModelViewSet):
     }
     
     # Search options
-    search_fields = ['name', 'color', 'location', 'size', 'status', 'description', 'health_notes']
+    search_fields = ['name', 'breed__name', 'color', 'location', 'size', 'status', 'description', 'health_notes']
     # Ordering options
     ordering_fields = ['created_at', 'updated_at', 'name', 'price', 'age_months']
     ordering = ['-featured', '-created_at']  # Featured pets first, then newest
@@ -79,6 +96,15 @@ class PetViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(Q(rabies_vaccinated=False) | Q(dhpp_vaccinated=False))
         
         return queryset
+      
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """
+        Get only featured pets.
+        """
+        featured_pets = self.get_queryset().filter(featured=True, status='available')
+        serializer = self.get_serializer(featured_pets, many=True)
+        return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def available(self, request):
@@ -125,8 +151,7 @@ class PetViewSet(viewsets.ModelViewSet):
         """
         Get available filter options for the frontend.
         """
-        from pets.models.choices import PetSize, PetStatus, PetGender
-        from pets.models.traits import LifestyleChoices, CharacteristicChoices
+        from pets.models import PetSize, PetStatus, PetGender, LifestyleChoices, CharacteristicChoices
         
         filter_info = {
             'sizes': [{'value': choice[0], 'label': choice[1]} for choice in PetSize.choices],

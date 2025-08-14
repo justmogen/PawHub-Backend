@@ -6,12 +6,27 @@ from .traits import LifestyleChoices, CharacteristicChoices
 from django.contrib.postgres.fields import ArrayField
 from .pet_parent import PetParent
 
+
+class Breed(TimeStampedModel):
+    """Breed model for managing pet breeds through admin."""
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    size_category = models.CharField(
+        max_length=10, 
+        choices=PetSize.choices, 
+    )
+    
+    def __str__(self):
+        return self.name
+
+
 class Pet(TimeStampedModel):
     # Basic Information
     name = models.CharField(max_length=100)
+    breed = models.ForeignKey('pets.Breed', on_delete=models.PROTECT, related_name='pets')
     description = models.TextField(blank=True)
     color = models.CharField(max_length=50, blank=True)
-    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Weight in kgs")
+    weight = models.DecimalField(max_digits=5, decimal_places=2, help_text="Weight in kgs")
     size = models.CharField(max_length=10, choices=PetSize.choices, default=PetSize.MEDIUM)
     gender = models.CharField(max_length=10, choices=PetGender.choices, default=PetGender.UNKNOWN)
     age_months = models.PositiveIntegerField(null=True, blank=True)
@@ -73,13 +88,14 @@ class Pet(TimeStampedModel):
         return self.rabies_vaccinated and self.dhpp_vaccinated
     
     def __str__(self):
-        return f"{self.name} - {self.gender} {self.size}"
+        return f"{self.name} - {self.breed.name} ({self.gender} {self.size})"
     
     class Meta:
         ordering = ['-created_at', 'name']
         indexes = [
             # Search & filtering indexes
             models.Index(fields=['status']),  
+            models.Index(fields=['breed']),  
             models.Index(fields=['gender', 'size']), 
             models.Index(fields=['price']), 
             models.Index(fields=['location']),  
@@ -92,6 +108,7 @@ class Pet(TimeStampedModel):
             
             # Composite indexes for common queries
             models.Index(fields=['status', 'featured', '-created_at']),
+            models.Index(fields=['breed', 'status', 'price']),
             models.Index(fields=['gender', 'status', 'price']),
         ]
 

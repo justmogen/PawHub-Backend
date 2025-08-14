@@ -1,6 +1,13 @@
 from django.contrib import admin
-from .models.pets import Pet, PetPhoto, PetVideo
-from .models.pet_parent import PetParent
+from .models import Pet, PetPhoto, PetVideo, PetParent, Breed
+
+
+@admin.register(Breed)
+class BreedAdmin(admin.ModelAdmin):
+    list_display = ['name', 'size_category', 'created_at']
+    list_filter = ['size_category',]
+    search_fields = ['name', 'description']
+    ordering = ['name']
 
 
 class PetPhotoInline(admin.TabularInline):
@@ -19,13 +26,13 @@ class PetVideoInline(admin.TabularInline):
 
 @admin.register(Pet)
 class PetAdmin(admin.ModelAdmin):
-    list_display = ['name', 'gender', 'size', 'age_months', 'price', 'status', 'featured']
-    list_filter = ['gender', 'size', 'status', 'featured', 'champions_bloodline']
-    search_fields = ['name', 'size', 'color']
+    list_display = ['name', 'breed', 'gender', 'size', 'age_months', 'price', 'status', 'featured']
+    list_filter = ['breed', 'gender', 'size', 'status', 'featured', 'champions_bloodline']
+    search_fields = ['name', 'breed__name', 'size', 'color']
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'description', 'color', 'weight', 'size', 'gender', 'age_months')
+            'fields': ('name', 'breed', 'description', 'color', 'weight', 'size', 'gender', 'age_months')
         }),
         ('Breeding & Features', {
             'fields': ('champions_bloodline', 'father', 'mother')

@@ -1,7 +1,13 @@
 from rest_framework import serializers
-from pets.models import Pet, PetPhoto, PetVideo, PetParent
-from pets.models.choices import PetSize, PetStatus, PetGender
-from pets.models.traits import LifestyleChoices, CharacteristicChoices
+from pets.models import Pet, PetPhoto, PetVideo, PetParent, Breed, LifestyleChoices, CharacteristicChoices
+
+
+class BreedSerializer(serializers.ModelSerializer):
+    """Serializer for Breed information."""
+    
+    class Meta:
+        model = Breed
+        fields = ['id', 'name', 'description', 'size_category']
 
 
 class PetParentSerializer(serializers.ModelSerializer):
@@ -33,13 +39,14 @@ class PetListSerializer(serializers.ModelSerializer):
     Serializer for Pet list view.
     Includes essential fields for listing/browsing pets.
     """
+    breed = BreedSerializer(read_only=True)
     main_photo = serializers.SerializerMethodField()
     is_fully_vaccinated = serializers.ReadOnlyField()
     
     class Meta:
         model = Pet
         fields = [
-            'id', 'name', 'description', 'color', 'weight', 'size', 'gender',
+            'id', 'name', 'breed', 'description', 'color', 'weight', 'size', 'gender',
             'age_months', 'price', 'featured', 'status', 'location',
             'main_photo', 'is_fully_vaccinated', 'champions_bloodline',
             'created_at', 'updated_at'
@@ -63,6 +70,13 @@ class PetDetailSerializer(serializers.ModelSerializer):
     Includes all fields and related objects for complete pet information.
     """
     # Related objects
+    breed = BreedSerializer(read_only=True)
+    breed_id = serializers.PrimaryKeyRelatedField(
+        queryset=Breed.objects.all(), 
+        source='breed', 
+        write_only=True,
+        help_text="Select breed from available options"
+    )
     photos = PetPhotoSerializer(many=True, read_only=True)
     videos = PetVideoSerializer(many=True, read_only=True)
     father = PetParentSerializer(read_only=True)
@@ -76,11 +90,11 @@ class PetDetailSerializer(serializers.ModelSerializer):
         model = Pet
         fields = [
             # Basic Information
-            'id', 'name', 'description', 'color', 'weight', 'size',
+            'id', 'name', 'breed', 'breed_id', 'description', 'color', 'weight', 'size',
             'gender', 'age_months', 'champions_bloodline',
             
             # Status and Pricing
-            'price', 'featured', 'status'
+            'price', 'featured', 'status',
             
             # Health & Documentation
             'rabies_vaccinated', 'rabies_vaccination_date',
