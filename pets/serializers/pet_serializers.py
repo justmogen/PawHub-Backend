@@ -3,56 +3,28 @@ from pets.models import Pet, PetPhoto, PetVideo, PetParent, Breed, LifestyleChoi
 
 
 class BreedSerializer(serializers.ModelSerializer):
-    """Serializer for Breed information."""
-    
     class Meta:
         model = Breed
         fields = ['id', 'name', 'description', 'size_category']
 
 
 class PetParentSerializer(serializers.ModelSerializer):
-    """Serializer for Pet Parent information."""
-    
     class Meta:
         model = PetParent
         fields = ['id', 'name', 'gender', 'date_of_birth', 'registration_number']
 
 
-class PetPhotoSerializer(serializers.ModelSerializer):
-    """Serializer for Pet Photos."""
-    
-    class Meta:
-        model = PetPhoto
-        fields = ['id', 'image', 'order', 'is_main']
-
-
-class PetVideoSerializer(serializers.ModelSerializer):
-    """Serializer for Pet Videos."""
-    
-    class Meta:
-        model = PetVideo
-        fields = ['id', 'video', 'title']
-
-
 class PetListSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Pet list view.
-    Includes essential fields for listing/browsing pets.
-    """
     breed = BreedSerializer(read_only=True)
     main_photo = serializers.SerializerMethodField()
-    is_fully_vaccinated = serializers.ReadOnlyField()
     
     class Meta:
         model = Pet
         fields = [
-            'id', 'name', 'breed', 'description', 'color', 'weight', 'size', 'gender',
-            'age_months', 'price', 'featured', 'status', 'location',
-            'main_photo', 'is_fully_vaccinated', 'champions_bloodline',
-            'lifestyle', 'characteristics',
-            'created_at', 'updated_at'
+            'id', 'name', 'breed', 'gender', 'age_months',
+            'main_photo', 'lifestyle', 'characteristics', 'champions_bloodline'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id']
     
     def get_main_photo(self, obj):
         """Get the main photo URL for the pet."""
@@ -63,6 +35,20 @@ class PetListSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(main_photo.url)
             return main_photo.url
         return None
+
+
+class PetPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PetPhoto
+        fields = ['id', 'image', 'order', 'is_main']
+        read_only_fields = ['id']
+
+
+class PetVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PetVideo
+        fields = ['id', 'video', 'title']
+        read_only_fields = ['id']
 
 
 class PetDetailSerializer(serializers.ModelSerializer):
@@ -78,14 +64,13 @@ class PetDetailSerializer(serializers.ModelSerializer):
         write_only=True,
         help_text="Select breed from available options"
     )
-    photos = PetPhotoSerializer(many=True, read_only=True)
-    videos = PetVideoSerializer(many=True, read_only=True)
     father = PetParentSerializer(read_only=True)
     mother = PetParentSerializer(read_only=True)
     
     # Computed fields
     main_photo = serializers.SerializerMethodField()
-    is_fully_vaccinated = serializers.ReadOnlyField()
+    photos = PetPhotoSerializer(many=True, read_only=True)
+    videos = PetVideoSerializer(many=True, read_only=True)
     
     class Meta:
         model = Pet
@@ -111,10 +96,10 @@ class PetDetailSerializer(serializers.ModelSerializer):
             'lifestyle', 'characteristics',
             
             # Related objects
-            'father', 'mother', 'photos', 'videos',
+            'father', 'mother',
             
             # Computed fields
-            'main_photo', 'is_fully_vaccinated',
+            'main_photo', 'photos', 'videos',
             
             # Timestamps
             'created_at', 'updated_at'

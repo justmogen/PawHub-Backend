@@ -26,8 +26,4 @@ urlpatterns = [
 # GET    /api/breeds/{id}/             - Get breed details
 #
 # Custom actions:
-# GET    /api/pets/available/          - Get available pets
-# GET    /api/pets/champions/          - Get champion bloodline pets
 # GET    /api/pets/filters_info/       - Get filter options for frontend
-# GET    /api/pets/{id}/photos/        - Get pet photos
-# GET    /api/pets/{id}/videos/        - Get pet videos

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Pet, PetPhoto, PetVideo, PetParent, Breed
+from .models import Pet, PetParent, Breed
 
 
 @admin.register(Breed)
@@ -11,14 +11,14 @@ class BreedAdmin(admin.ModelAdmin):
 
 
 class PetPhotoInline(admin.TabularInline):
-    model = PetPhoto
+    model = Pet.photos.rel.related_model
     extra = 1
     max_num = 5
     fields = ['image', 'order', 'is_main']
 
 
 class PetVideoInline(admin.TabularInline):
-    model = PetVideo
+    model = Pet.videos.rel.related_model
     extra = 1
     max_num = 2
     fields = ['video', 'title']
@@ -49,25 +49,12 @@ class PetAdmin(admin.ModelAdmin):
             'fields': ('location', 'lifestyle', 'characteristics')
         }),
     )
-    
     inlines = [PetPhotoInline, PetVideoInline]
     
     def get_readonly_fields(self, request, obj=None):
         if obj:  # Editing existing pet
             return ['id', 'created_at', 'updated_at']
         return ['id']
-
-
-@admin.register(PetPhoto)
-class PetPhotoAdmin(admin.ModelAdmin):
-    list_display = ['pet', 'order', 'is_main', 'created_at']
-    list_filter = ['pet', 'is_main']
-
-
-@admin.register(PetVideo)
-class PetVideoAdmin(admin.ModelAdmin):
-    list_display = ['pet', 'title', 'created_at']
-    list_filter = ['pet']
 
 
 @admin.register(PetParent)
