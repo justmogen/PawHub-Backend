@@ -7,6 +7,7 @@ class PetParent(TimeStampedModel):
     gender = models.CharField(max_length=10, choices=PetGender.choices)
     date_of_birth = models.DateField(null=True, blank=True)
     registration_number = models.CharField(max_length=50, blank=True)
+    avatar = models.ImageField(upload_to='pet_parents/avatars/', blank=True, null=True)
     
     def __str__(self):
         return f"{self.name} ({self.gender})"

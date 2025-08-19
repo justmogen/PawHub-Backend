@@ -9,9 +9,11 @@ class BreedSerializer(serializers.ModelSerializer):
 
 
 class PetParentSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(read_only=True)
+
     class Meta:
         model = PetParent
-        fields = ['id', 'name', 'gender', 'date_of_birth', 'registration_number']
+        fields = ['id', 'name', 'gender', 'date_of_birth', 'registration_number', 'avatar']
 
 
 class PetListSerializer(serializers.ModelSerializer):
