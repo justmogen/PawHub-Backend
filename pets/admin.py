@@ -65,7 +65,7 @@ class PetParentAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'gender', 'date_of_birth')
+            'fields': ('name', 'gender', 'date_of_birth', 'avatar')
         }),
         ('Registration & Pedigree', {
             'fields': ('registration_number',)

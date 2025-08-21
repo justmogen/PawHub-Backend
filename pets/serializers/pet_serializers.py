@@ -23,7 +23,7 @@ class PetListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
         fields = [
-            'id', 'name', 'breed', 'gender', 'age_months',
+            'id', 'name', 'breed', 'gender', 'age_months','featured',
             'main_photo', 'lifestyle', 'characteristics', 'champions_bloodline'
         ]
         read_only_fields = ['id']
