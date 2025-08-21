@@ -19,7 +19,8 @@ if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 else:
     ALLOWED_HOSTS = [
-        'api.pethub.sbs',  # Render deployment
+        'pawhub-backend.onrender.com',  # Render deployment
+        'api.pethub.sbs',  # Custom domain
         'pethub.sbs',
         'www.pethub.sbs'
     ]
