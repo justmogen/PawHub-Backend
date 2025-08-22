@@ -98,7 +98,7 @@ class PetViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def filters_info(self, request):
         """
-        Get available filter options for the frontend to use.
+        Get available filter options for the frontend.
         Caches the response
         """
         cache_key = "pets_filters_info"
