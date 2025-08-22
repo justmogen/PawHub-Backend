@@ -117,6 +117,7 @@ class PetViewSet(viewsets.ModelViewSet):
             }
         }
         cache.set(cache_key, filter_info, timeout=9200)
+        return Response(filter_info)
 
     def perform_create(self, serializer):
         """

@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
-from urllib.parse import urlparse, parse_qsl
+import dj_database_url
 
 load_dotenv()
 
@@ -12,18 +12,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY') or get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Environment-aware hosts
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 else:
-    ALLOWED_HOSTS = [
-        'pawhub-backend.onrender.com',  # Render deployment
-        'api.pethub.sbs',  # Custom domain
-        'pethub.sbs',
-        'www.pethub.sbs'
-    ]
+    ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,29 +67,10 @@ WSGI_APPLICATION = 'pethub.wsgi.application'
 # Database - Environment aware
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-if DATABASE_URL:
-    # Production: Use Neon or other PostgreSQL service
-    tmpPostgres = urlparse(DATABASE_URL)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': tmpPostgres.path.replace('/', ''),
-            'USER': tmpPostgres.username,
-            'PASSWORD': tmpPostgres.password,
-            'HOST': tmpPostgres.hostname,
-            'PORT': tmpPostgres.port or 5432,
-            'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
-            'CONN_MAX_AGE': 600,
-        }
-    }
-else:
-    # Development: Use SQLite
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+# Database - Use dj_database_url for PostgreSQL
+DATABASES = {
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
