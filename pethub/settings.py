@@ -18,7 +18,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 else:
-    ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -67,10 +67,19 @@ WSGI_APPLICATION = 'pethub.wsgi.application'
 # Database - Environment aware
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-# Database - Use dj_database_url for PostgreSQL
-DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-}
+if DATABASE_URL:
+    # Production: Use dj_database_url for PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    # Development/CI: Use SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
