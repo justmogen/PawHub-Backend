@@ -2,7 +2,6 @@ from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
-from urllib.parse import urlparse, parse_qsl
 import dj_database_url
 
 load_dotenv()
