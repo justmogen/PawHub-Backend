@@ -114,7 +114,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 USE_R2_STORAGE = os.getenv('USE_R2_STORAGE', 'False').lower() == 'true'
 
 if USE_R2_STORAGE:
-    # Production: Use Cloudflare R2 (S3-compatible)
+    # Production: Use Cloudflare R2 (S3-compatible) for media files
     R2_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN', f"{os.getenv('R2_BUCKET_NAME', 'pethub-media')}.{os.getenv('R2_ACCOUNT_ID', '')}.r2.cloudflarestorage.com")
     MEDIA_URL = f"https://{R2_CUSTOM_DOMAIN}/"
     
@@ -132,10 +132,15 @@ if USE_R2_STORAGE:
     
     # Use R2 for media files
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # Use R2 for static files in production
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
 else:
     # Development: Use local file storage
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # CORS settings - Environment aware
 CORS_ALLOWED_ORIGINS = [
