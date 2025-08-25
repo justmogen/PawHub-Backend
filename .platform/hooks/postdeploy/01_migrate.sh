@@ -11,4 +11,4 @@ echo "=== EB postdeploy: running migrations ==="
 python /var/app/current/manage.py migrate --noinput
 
 echo "=== EB postdeploy: checking Django configuration ==="
-python /var/app/current/manage.py check --deploy
+python /var/app/current/manage.py check

@@ -187,8 +187,8 @@ CORS_ALLOWED_HEADERS = [
     'x-requested-with',
 ]
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Default primary key field type - Use UUIDField for consistency
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  # Commented out to prevent UUID->BigInt migration issues
 
 # Django REST Framework
 REST_FRAMEWORK = {
