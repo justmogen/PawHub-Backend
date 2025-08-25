@@ -50,10 +50,8 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Install Python deps + EB CLI
+      - name: Install EB CLI
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install awsebcli
 
       - name: Configure AWS credentials
@@ -63,21 +61,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Export DJANGO_SETTINGS_MODULE
-        run: echo "DJANGO_SETTINGS_MODULE=pethub.settings" >> $GITHUB_ENV
-
-      - name: Collect static
-        env:
-          DJANGO_SETTINGS_MODULE: pethub.settings
-        run: python manage.py collectstatic --noinput
-
-      - name: Show collected static files (CI check)
-        run: ls -la staticfiles | sed -n '1,80p' || true
-
       - name: Deploy to Elastic Beanstalk
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           eb init -p python-3.11 ${{ secrets.EB_APPLICATION_NAME }} --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --staged
+          eb deploy
