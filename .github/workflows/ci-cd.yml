@@ -63,7 +63,3 @@ jobs:
           eb init -p python-3.11 ${{ secrets.EB_APPLICATION_NAME }} --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
           eb deploy
-
-      - name: Run Django migrations
-        run: |
-          eb ssh ${{ secrets.EB_ENVIRONMENT_NAME }} --command "cd /var/app/current && python manage.py migrate"
