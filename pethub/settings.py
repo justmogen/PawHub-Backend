@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,11 +128,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Use WhiteNoise for static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media files (uploads) - Environment aware
 USE_R2_STORAGE = os.getenv('USE_R2_STORAGE', 'False').lower() == 'true'
 
 if USE_R2_STORAGE:
     # Production: Use Cloudflare R2 (S3-compatible) for media files
+    R2_ACCOUNT_ID = os.getenv('R2_ACCOUNT_ID', '')
     R2_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN', f"{os.getenv('R2_BUCKET_NAME', 'pethub-media')}.{os.getenv('R2_ACCOUNT_ID', '')}.r2.cloudflarestorage.com")
     MEDIA_URL = f"https://{R2_CUSTOM_DOMAIN}/"
     
@@ -141,17 +146,19 @@ if USE_R2_STORAGE:
     AWS_STORAGE_BUCKET_NAME = os.getenv('R2_BUCKET_NAME', 'pethub-media')
     AWS_S3_ENDPOINT_URL = f"https://{os.getenv('R2_ACCOUNT_ID', '')}.r2.cloudflarestorage.com"
     AWS_S3_REGION_NAME = 'auto'  # Cloudflare R2 uses 'auto'
-    AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN', f"{AWS_STORAGE_BUCKET_NAME}.{os.getenv('R2_ACCOUNT_ID', '')}.r2.cloudflarestorage.com")
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
     }
+    AWS_QUERYSTRING_AUTH = False
+    AWS_DEFAULT_ACL = None
     
     # Use R2 for media files
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    # Use R2 for static files in production
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+    # Keep WhiteNoise for static files
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATIC_URL = '/static/'   # WhiteNoise will serve from STATIC_ROOT
+
 else:
     # Development: Use local file storage
     MEDIA_URL = '/media/'
